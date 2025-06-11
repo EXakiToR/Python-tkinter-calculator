@@ -1,4 +1,10 @@
-
+"""
+Смысл даже есть там, где кажется его нет
+Недопонятые баги:
+    1)Операции возведения в степень с минусом
+    2)Процент от числа (переход в экспоненциальную форму -> повторная операция берет
+    процент от степени а не от всего числа)
+"""
 import time as t
 import tkinter as tk
 import math
@@ -7,7 +13,7 @@ from tkinter import messagebox
 from tkinter.scrolledtext import ScrolledText
 
 rt = tk.Tk()
-rt.geometry("870x395+300+250")
+rt.geometry("870x400+300+250")
 rt.title('PyCalc')
 rt.resizable(False, False)
 operators = '0.+-*/^'
@@ -18,9 +24,9 @@ result = ''
 f = ''
 
 
-def add_digit(digit):
+def addDigit(digit):
     global expression, operation
-    get_entrysContent()
+    getEntrysContent()
     try:
         if expression[0] == '0' and '.' not in expression:
             expression = expression[1:]
@@ -37,14 +43,14 @@ def add_digit(digit):
             digit = str(math.e)
     entry.delete(0, tk.END)
     entry.insert(0, expression + digit)
-    get_entrysContent()
-    extract_number()
+    getEntrysContent()
+    extractNumber()
 
 
-def add_operation(oprn):  # operation
+def addOperation(oprn):  # operation
     global expression, number, operation
-    get_entrysContent()
-    extract_number()
+    getEntrysContent()
+    extractNumber()
     operation = oprn
 
     if oprn in '+-*/':
@@ -66,7 +72,7 @@ def add_operation(oprn):  # operation
         try:
             entry.delete(len(expression) - len(number), tk.END)
             oprn = str(math.sqrt(Decimal(number)))
-            get_entrysContent()
+            getEntrysContent()
             archive.config(state=tk.NORMAL)
             archive.insert(1.0, f'√({number})' + ' = ' + oprn + '\n')
             archive.config(state=tk.DISABLED)
@@ -83,7 +89,7 @@ def add_operation(oprn):  # operation
         try:
             entry.delete(len(expression) - len(number), tk.END)
             oprn = str(Decimal(number) / 100)
-            get_entrysContent()
+            getEntrysContent()
             archive.config(state=tk.NORMAL)
             archive.insert(1.0, f'%({number})' + ' = ' + oprn + '\n')
             archive.config(state=tk.DISABLED)
@@ -96,7 +102,7 @@ def add_operation(oprn):  # operation
         try:
             entry.delete(len(expression) - len(number), tk.END)
             oprn = str(Decimal(number) // 1)
-            get_entrysContent()
+            getEntrysContent()
             archive.config(state=tk.NORMAL)
             archive.insert(1.0, f'div({number})' + ' = ' + oprn + '\n')
             archive.config(state=tk.DISABLED)
@@ -108,7 +114,7 @@ def add_operation(oprn):  # operation
         try:
             entry.delete(len(expression) - len(number), tk.END)
             oprn = str(Decimal(number) % 1)
-            get_entrysContent()
+            getEntrysContent()
             archive.config(state=tk.NORMAL)
             archive.insert(1.0, f'mod({number})' + ' = ' + oprn + '\n')
             archive.config(state=tk.DISABLED)
@@ -119,18 +125,18 @@ def add_operation(oprn):  # operation
             oprn = ''
     entry.delete(0, tk.END)
     entry.insert(0, expression + str(oprn))
-    extract_number()
+    extractNumber()
 
 
 def calc():
     global result
-    get_entrysContent()
+    getEntrysContent()
     entry.delete(0, tk.END)
     try:
         # round как костыль из-за особенности счисления float (0.1+0.1+0.1 = 0.30000000000000004...)
         result = str(round(eval(expression), 16))
         entry.insert(0, result)
-        extract_number()
+        extractNumber()
         archive.config(state=tk.NORMAL)
         archive.insert(1.0, expression + ' = ' + result + '\n')
         archive.config(state=tk.DISABLED)
@@ -142,7 +148,7 @@ def calc():
         tk.messagebox.showerror(title='Ошибка', message='Ошибка вычисления')
 
 
-def save_res():
+def saveResult():
     global f
     try:
         f = open('Вычисления pycalc' + '.txt', 'a', encoding='utf-8')
@@ -155,12 +161,12 @@ def save_res():
     f.close()
 
 
-def get_entrysContent():
+def getEntrysContent():
     global expression
     expression = entry.get()
 
 
-def extract_number():
+def extractNumber():
     global number
     number = ''
     for i in range(1, len(expression) + 1):
@@ -172,33 +178,33 @@ def extract_number():
     return number
 
 
-def create_digit_btn(digit):
+def createDigitButton(digit):
     return tk.Button(rt, text=digit, font=('Arial', 14), bd=4,
-                     command=lambda: add_digit(digit))
+                     command=lambda: addDigit(digit))
 
 
-def create_operator_btn(oper):  # operator
+def createOperatorButton(oper):  # operator
     return tk.Button(rt, text=oper, font=('Arial', 14), bd=4,
-                     command=lambda: add_operation(oper))
+                     command=lambda: addOperation(oper))
 
 
-def remove_char():
+def removeChar():
     global number, expression
     entry.delete(len(entry.get()) - 1)
     number = number[:-1]
     if not entry.get():
         entry.insert(0, '0')
-    get_entrysContent()
-    extract_number()
+    getEntrysContent()
+    extractNumber()
 
 
-def clear_entry():
+def clearEntry():
     global number, expression, operation
     entry.delete(0, tk.END)
     entry.insert(0, '0')
     number = ''
     operation = ''
-    get_entrysContent()
+    getEntrysContent()
     archive.config(state=tk.NORMAL)
     archive.delete(1.0, tk.END)
     archive.config(state=tk.DISABLED)
@@ -208,43 +214,43 @@ entry = tk.Entry(rt, font=('Arial', 22), bd=10, justify=tk.RIGHT)
 entry.insert(0, '0')
 entry.grid(row=0, column=0, columnspan=5, sticky='nswe', pady=5)
 
-tk.Button(rt, text='-char', font=('Arial', 14), bd=4, command=remove_char).grid(row=1, column=0,
+tk.Button(rt, text='-char', font=('Arial', 14), bd=4, command=removeChar).grid(row=1, column=0,
                                                                                 sticky='nswe')
-tk.Button(rt, text='clear', font=('Arial', 14), bd=4, command=clear_entry).grid(row=1, column=1,
+tk.Button(rt, text='clear', font=('Arial', 14), bd=4, command=clearEntry).grid(row=1, column=1,
                                                                                 columnspan=2,
                                                                                 sticky='nswe')
-create_digit_btn('Pi').grid(row=1, column=3, sticky='nswe')
-create_digit_btn('e').grid(row=1, column=4, sticky='nswe')
+createDigitButton('Pi').grid(row=1, column=3, sticky='nswe')
+createDigitButton('e').grid(row=1, column=4, sticky='nswe')
 
-create_operator_btn('div').grid(row=2, column=0, sticky='nswe')
-create_operator_btn('mod').grid(row=2, column=1, columnspan=2, sticky='nswe')
-create_operator_btn('√').grid(row=2, column=3, sticky='nswe')
-create_operator_btn('^').grid(row=2, column=4, sticky='nswe')
+createOperatorButton('div').grid(row=2, column=0, sticky='nswe')
+createOperatorButton('mod').grid(row=2, column=1, columnspan=2, sticky='nswe')
+createOperatorButton('√').grid(row=2, column=3, sticky='nswe')
+createOperatorButton('^').grid(row=2, column=4, sticky='nswe')
 
-create_digit_btn('7').grid(row=3, column=0, sticky='nswe')
-create_digit_btn('8').grid(row=3, column=1, sticky='nswe')
-create_digit_btn('9').grid(row=3, column=2, sticky='nswe')
-create_operator_btn('+').grid(row=3, column=3, sticky='nswe')
-create_operator_btn('-').grid(row=3, column=4, sticky='nswe')
+createDigitButton('7').grid(row=3, column=0, sticky='nswe')
+createDigitButton('8').grid(row=3, column=1, sticky='nswe')
+createDigitButton('9').grid(row=3, column=2, sticky='nswe')
+createOperatorButton('+').grid(row=3, column=3, sticky='nswe')
+createOperatorButton('-').grid(row=3, column=4, sticky='nswe')
 
-create_digit_btn('4').grid(row=4, column=0, sticky='nswe')
-create_digit_btn('5').grid(row=4, column=1, sticky='nswe')
-create_digit_btn('6').grid(row=4, column=2, sticky='nswe')
-create_operator_btn('*').grid(row=4, column=3, sticky='nswe')
-create_operator_btn('/').grid(row=4, column=4, sticky='nswe')
+createDigitButton('4').grid(row=4, column=0, sticky='nswe')
+createDigitButton('5').grid(row=4, column=1, sticky='nswe')
+createDigitButton('6').grid(row=4, column=2, sticky='nswe')
+createOperatorButton('*').grid(row=4, column=3, sticky='nswe')
+createOperatorButton('/').grid(row=4, column=4, sticky='nswe')
 
-create_digit_btn('1').grid(row=5, column=0, sticky='nswe')
-create_digit_btn('2').grid(row=5, column=1, sticky='nswe')
-create_digit_btn('3').grid(row=5, column=2, sticky='nswe')
-create_operator_btn('%').grid(row=5, column=3, sticky='nswe')
+createDigitButton('1').grid(row=5, column=0, sticky='nswe')
+createDigitButton('2').grid(row=5, column=1, sticky='nswe')
+createDigitButton('3').grid(row=5, column=2, sticky='nswe')
+createOperatorButton('%').grid(row=5, column=3, sticky='nswe')
 tk.Button(rt, text='=', font=('Arial', 14), bd=4, command=calc).grid(row=5, column=4, rowspan=2,
                                                                      sticky='nswe')
 
-create_digit_btn('0').grid(row=6, column=0, columnspan=2, sticky='nswe')
-create_operator_btn('.').grid(row=6, column=2, columnspan=2, sticky='nswe')
+createDigitButton('0').grid(row=6, column=0, columnspan=2, sticky='nswe')
+createOperatorButton('.').grid(row=6, column=2, columnspan=2, sticky='nswe')
 
 tk.Button(rt, text='Сохранить историю вычислений', fg='green', font=('Arial', 14), bd=4,
-          command=save_res).grid(row=7, column=0,
+          command=saveResult).grid(row=7, column=0,
                                  columnspan=5,
                                  sticky='nswe')
 
